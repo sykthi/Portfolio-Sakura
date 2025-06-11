@@ -3,27 +3,48 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
 const canvas = document.getElementById("experience-canvas");
 const sizes = {width: innerWidth, height: innerHeight};
-
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 
 renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.75;
 
+let intersectObject = "";
+const intersectObjects = [];
+const intersectObjectsNames = [
+  "fighting_post",
+  "statue_frog",
+  "shrine",
+  "gong"
+];
 //loading model
 const loader = new GLTFLoader();
 
-loader.load( './Scene3.glb', function ( glb ) {
-  console.log(glb);
-  glb.scene.traverse(child => {
+loader.load( './Scene1.glb', function ( glb ) {
+  glb.scene.traverse((child) => {
+    if(intersectObjectsNames.includes(child.name)){
+      intersectObjects.push(child);
+    }
     if(child.isMesh){
       child.castShadow = true;
       child.receiveShadow = true;
+      // console.log(child.material);
+      if(child.material.name === "Water")
+      {
+        child.material.metalness = .7;
+        child.material.roughness = 0;
+        child.material.transparent = true;
+        child.material.opacity = 0.6;
+      }
     }
-    console.log(child);
+    // console.log(child);
   });
 
   scene.add( glb.scene );
@@ -35,9 +56,9 @@ loader.load( './Scene3.glb', function ( glb ) {
 } );
 
 //dirLight
-const sun = new THREE.DirectionalLight( 0xFFFFFF );
+const sun = new THREE.DirectionalLight( 0xFFFFFF, 2);
 sun.castShadow = true;
-sun.position.set(30,25,-30);
+sun.position.set(-40,30,40);
 sun.target.position.set(0,0,0);
 sun.shadow.mapSize.width = 4096;
 sun.shadow.mapSize.height = 4096;
@@ -49,26 +70,26 @@ sun.shadow.normalBias = .2;
 scene.add( sun );
 
 const shadowHelper = new THREE.CameraHelper( sun.shadow.camera );
-scene.add( shadowHelper );
-console.log(sun.shadow);
-const helper = new THREE.DirectionalLightHelper( sun, 5 );
+scene.add( shadowHelper );  //shadow helper
+// console.log(sun.shadow);
+const helper = new THREE.DirectionalLightHelper( sun, 10);
 scene.add( helper );
 
 //Ambilight
-const light = new THREE.AmbientLight( 0x404040, 10); // soft white light
+const light = new THREE.AmbientLight( 0x404040, 5); // soft white light
 scene.add( light );
 
 const aspect = sizes.width/sizes.height;
-const camera = new THREE.OrthographicCamera( -aspect * 50, aspect * 50, 50, -50, 1, 1000 );
+const camera = new THREE.OrthographicCamera( -aspect * 50, aspect * 50, 50, -50, .1, 1000 );
 
-camera.position.x = -12;
-camera.position.y = 11;
-camera.position.z = -12;
+camera.position.x = 10;
+camera.position.y = 10;
+camera.position.z = 10;
 
 const controls = new OrbitControls( camera, canvas );
 controls.update();
 
-function handleResize(){
+function onResize(){
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
   const aspect = sizes.width / sizes.height;
@@ -81,10 +102,36 @@ function handleResize(){
   renderer.setSize(sizes.width, sizes.height);
 }
 
-window.addEventListener("resize", handleResize);
+function onclick(){
+  console.log(intersectObject);
+}
 
+function onPointerMove( event ) {
+	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+window.addEventListener("resize", onResize);
+window.addEventListener("click", onclick);
+window.addEventListener( 'pointermove', onPointerMove );
 
 function animate() {
+  raycaster.setFromCamera( pointer, camera );
+
+	const intersects = raycaster.intersectObjects( intersectObjects );
+
+  if(intersects.length >0){
+    document.body.style.cursor = "pointer";
+  }
+  else{
+    document.body.style.cursor = "default";
+    intersectObject = "";
+  }
+
+	for ( let i = 0; i < intersects.length; i ++ ) {
+    // console.log(intersects[0].object.parent.name);
+    intersectObject = intersects[0].object.parent.name;
+	}
   // console.log(camera.position);
   renderer.render( scene, camera );
 }
