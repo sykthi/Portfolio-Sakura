@@ -4,12 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+25&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="experience">
         <canvas id="experience-canvas"></canvas>
     </div>
+
+    <div class="modal hidden">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <h1 class="modal-title">Projects</h1>
+                <button class="modal-exit-button">exit</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-content-wrapper">
+                    <a href="#"
+                    target="_blank"
+                    rel="noopener noreferrer" 
+                    class="modal-project-visit-button hidden">View project</a>
+                    <div class="modal-project-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi molestiae eius distinctio aut sit obcaecati fuga dolor officiis laudantium, aliquam voluptatum nostrum iusto vitae ab dolores quod velit adipisci. Voluptatum.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
         {
         "imports": {
