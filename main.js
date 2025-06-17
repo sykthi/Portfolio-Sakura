@@ -8,6 +8,7 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const canvas = document.getElementById("experience-canvas");
 const sizes = {width: innerWidth, height: innerHeight};
+
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 
 renderer.setSize( sizes.width, sizes.height );
@@ -43,7 +44,8 @@ const modalProjectDescription = document.querySelector(".modal-project-descripti
 const modalExitButton = document.querySelector(".modal-exit-button");
 const modalVisitProjectButton = document.querySelector(".modal-project-visit-button");
 
-function showModal(id){
+function showModal(id)
+{
   const content = modalContent[id];
   if (content){
     modalTitle.textContent = content.title;
@@ -60,22 +62,18 @@ function showModal(id){
   }
 }
 
-function hideModel() {
+function hideModel()
+{
   modal.classList.toggle("hidden");
 }
 
 let intersectObject = "";
 const intersectObjects = [];
-const intersectObjectsNames = [
-  "fighting_post",
-  "statue_frog",
-  "shrine",
-  "gong",
-];
+const intersectObjectsNames = ["fighting_post", "statue_frog", "shrine", "gong",];
 //loading model
 const loader = new GLTFLoader();
 
-loader.load( './Scene.glb', function ( glb ) {
+loader.load( './Scene1.glb', function ( glb ) {
   glb.scene.traverse((child) => {
     if(intersectObjectsNames.includes(child.name)){
       intersectObjects.push(child);
@@ -91,7 +89,6 @@ loader.load( './Scene.glb', function ( glb ) {
         child.material.opacity = 0.7;
       }
     }
-    // console.log(child);
   });
 
   scene.add( glb.scene );
@@ -135,7 +132,8 @@ camera.position.z = 10;
 const controls = new OrbitControls( camera, canvas );
 controls.update();
 
-function onResize(){
+function onResize()
+{
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
   const aspect = sizes.width / sizes.height;
@@ -148,45 +146,73 @@ function onResize(){
   renderer.setSize(sizes.width, sizes.height);
 }
 
-function onclick(){
-  console.log(intersectObject);
+function onclick()
+{
+  // console.log(intersectObject);
   if(intersectObject !=="") {
     showModal(intersectObject);
   }
 }
 
-function onPointerMove( event ) {
+function onPointerMove( event )
+{
 	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-function onkeyDown(event){
-  console.log(event);
-}
+// function onkeyDown(event)
+// {
+//   console.log(event);
+//   switch(event.key.toLowerCase()){
+//     case "w":
+//     case "arrowup":
+//       character.instance.position.x -= character.moveDistance;
+//       break;
+//     case "s":
+//     case "arrowdown":
+//       character.instance.position.x += character.moveDistance;
+//       break;
+//     case "a":
+//     case "arrowleft":
+//       character.instance.position.z += character.moveDistance;
+//       break;
+//     case "d":
+//     case "arrowright":
+//       character.instance.position.z -= character.moveDistance;
+//       break;
+//     default:
+//       return;
+//   }
+// }
+// window.addEventListener("keydown", onkeyDown);
 
 modalExitButton.addEventListener("click", hideModel);
 window.addEventListener("resize", onResize);
 window.addEventListener("click", onclick);
 window.addEventListener("pointermove", onPointerMove);
-window.addEventListener("keydown", onkeyDown);
 
-function animate() {
-
+function animate()
+{
   raycaster.setFromCamera(pointer, camera);
 
   const intersects = raycaster.intersectObjects(intersectObjects);
 
-  if (intersects.length > 0) {
+  if (intersects.length > 0) 
+  {
     document.body.style.cursor = "pointer";
-  } else {
+  }
+  else
+  {
     document.body.style.cursor = "default";
     intersectObject = "";
   }
 
-  for (let i = 0; i < intersects.length; i++) {
-    // console.log(intersects[0].object);
+  for (let i = 0; i < intersects.length; i++)
+  {
+    // console.log(intersects[0].object.name);
     intersectObject = intersects[0].object.name;
   }
+
   renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
