@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-// import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 const scene = new THREE.Scene();
 const raycaster = new THREE.Raycaster();
@@ -78,7 +78,8 @@ loader.load( './Scene1.glb', function ( glb ) {
     if(intersectObjectsNames.includes(child.name)){
       intersectObjects.push(child);
     }
-    if(child.isMesh){
+    if(child.isMesh)
+    {
       child.castShadow = true;
       child.receiveShadow = true;
       if(child.material.name === "Water")
@@ -98,6 +99,23 @@ loader.load( './Scene1.glb', function ( glb ) {
   console.error( error );
 
 } );
+
+//loading character
+const characterLoader = new FBXLoader();
+const degToRad = (deg) => deg * (Math.PI / 180);
+characterLoader.load('Ronin1.fbx', function (fbx) {
+  fbx.scale.set(0.01, 0.01, 0.01);
+  fbx.position.set(13, 0, 0);
+  fbx.rotation.set(degToRad(0), degToRad(-90), degToRad(0));
+
+  fbx.traverse(function (child) {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  scene.add(fbx);
+});
 
 //dirLight
 const sun = new THREE.DirectionalLight( 0xFFFFFF, 2);
