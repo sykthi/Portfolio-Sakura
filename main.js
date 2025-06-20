@@ -11,6 +11,11 @@ const sizes = {width: innerWidth, height: innerHeight};
 
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 
+let roninCharacter = null;
+let mixer = null;
+const animations = {};
+const keysPressed = {};
+
 renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -72,8 +77,8 @@ const intersectObjects = [];
 const intersectObjectsNames = ["fighting_post", "statue_frog", "shrine", "gong",];
 //loading model
 const loader = new GLTFLoader();
-
-loader.load( './Scene1.glb', function ( glb ) {
+loader.load( '3D/Scene1.glb', function ( glb ) {
+  glb.scene.rotation.set(0, Math.PI/2, 0);
   glb.scene.traverse((child) => {
     if(intersectObjectsNames.includes(child.name)){
       intersectObjects.push(child);
@@ -91,36 +96,67 @@ loader.load( './Scene1.glb', function ( glb ) {
       }
     }
   });
-
+  
   scene.add( glb.scene );
-
+  
 }, undefined, function ( error ) {
-
+  
   console.error( error );
-
+  
 } );
 
 //loading character
-const characterLoader = new FBXLoader();
+
+const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
-characterLoader.load('Ronin1.fbx', function (fbx) {
+fbxLoader.load('3D/roni.fbx', function (fbx) {
   fbx.scale.set(0.01, 0.01, 0.01);
-  fbx.position.set(13, 0, 0);
-  fbx.rotation.set(degToRad(0), degToRad(-90), degToRad(0));
+  fbx.position.set(0, 0, -13);
+  fbx.rotation.set(0, 0, 0);
 
   fbx.traverse(function (child) {
     if (child.isMesh) {
       child.castShadow = true;
       child.receiveShadow = true;
+      if(child.material.name === "BodyColor")
+      {
+        child.material.metalness = 0.01;
+        child.material.roughness = 1;
+      }
     }
   });
+
+  roninCharacter = fbx;
   scene.add(fbx);
+
+  mixer = new THREE.AnimationMixer(roninCharacter);
+
+  fbxLoader.load('Anim/Walk.fbx', function (anim) {
+    const runAction = mixer.clipAction(anim.animations[0]);
+    animations["walk"] = runAction; // just name it "walk" to match 
+  });
+  fbxLoader.load('Anim/Idle.fbx', function (anim) {
+    const runAction = mixer.clipAction(anim.animations[0]);
+    animations["idle"] = runAction; // just name it "walk" to match 
+  });
+
 });
+
+function playAnimation(name) {
+  if (!animations[name]) return;
+  if (animations[name].isRunning()) return;
+
+  for (let key in animations) {
+    animations[key].stop();
+  }
+
+  animations[name].reset().play();
+}
 
 //dirLight
 const sun = new THREE.DirectionalLight( 0xFFFFFF, 2);
 sun.castShadow = true;
-sun.position.set(-40,30,40);
+sun.position.set(40,30,40);
 sun.target.position.set(0,0,0);
 sun.shadow.mapSize.width = 4096;
 sun.shadow.mapSize.height = 4096;
@@ -145,7 +181,7 @@ const camera = new THREE.OrthographicCamera( -aspect * 50, aspect * 50, 50, -50,
 
 camera.position.x = 10;
 camera.position.y = 10;
-camera.position.z = 10;
+camera.position.z = -10;
 
 const controls = new OrbitControls( camera, canvas );
 controls.update();
@@ -178,59 +214,116 @@ function onPointerMove( event )
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-// function onkeyDown(event)
-// {
-//   console.log(event);
-//   switch(event.key.toLowerCase()){
-//     case "w":
-//     case "arrowup":
-//       character.instance.position.x -= character.moveDistance;
-//       break;
-//     case "s":
-//     case "arrowdown":
-//       character.instance.position.x += character.moveDistance;
-//       break;
-//     case "a":
-//     case "arrowleft":
-//       character.instance.position.z += character.moveDistance;
-//       break;
-//     case "d":
-//     case "arrowright":
-//       character.instance.position.z -= character.moveDistance;
-//       break;
-//     default:
-//       return;
-//   }
-// }
-// window.addEventListener("keydown", onkeyDown);
+function onKeyDown(event) {
+  if (!roninCharacter) return; // Ensure model is loaded
+  const speed = 1; // Movement speed
+  
+
+  switch (event.key.toLowerCase()) {
+    case "w":
+    case "arrowup":
+      roninCharacter.position.z += speed;
+      roninCharacter.rotation.y = degToRad(0);
+      playAnimation("walk");
+      break;
+    case "s":
+    case "arrowdown":
+      roninCharacter.position.z -= speed;
+      roninCharacter.rotation.y = degToRad(180);
+      playAnimation("walk");
+      break;
+
+    case "a":
+    case "arrowleft":
+      roninCharacter.position.x += speed;
+      roninCharacter.rotation.y = degToRad(90);
+      playAnimation("walk");
+      break;
+    case "d":
+    case "arrowright":
+      roninCharacter.position.x -= speed;
+      roninCharacter.rotation.y = degToRad(-90);
+      playAnimation("walk");
+      break;
+  }
+}
+
+function updateCharacterMovement(delta) {
+  if (!roninCharacter) return;
+
+  const speed = 1.5 * delta; // scale by delta time
+  let isMoving = false;
+
+  if (keysPressed["w"] || keysPressed["arrowup"]) {
+    roninCharacter.position.z += speed;
+    roninCharacter.rotation.y = degToRad(0);
+    isMoving = true;
+  } else if (keysPressed["s"] || keysPressed["arrowdown"]) {
+    roninCharacter.position.z -= speed;
+    roninCharacter.rotation.y = degToRad(180);
+    isMoving = true;
+  }
+
+  if (keysPressed["a"] || keysPressed["arrowleft"]) {
+    roninCharacter.position.x += speed;
+    roninCharacter.rotation.y = degToRad(90);
+    isMoving = true;
+  } else if (keysPressed["d"] || keysPressed["arrowright"]) {
+    roninCharacter.position.x -= speed;
+    roninCharacter.rotation.y = degToRad(-90);
+    isMoving = true;
+  }
+
+  if (isMoving)
+  {
+  playAnimation("walk");
+  } 
+  else
+  {
+  playAnimation("idle");
+  }
+
+}
+
 
 modalExitButton.addEventListener("click", hideModel);
 window.addEventListener("resize", onResize);
+// window.addEventListener("keydown", onKeyDown);
 window.addEventListener("click", onclick);
 window.addEventListener("pointermove", onPointerMove);
 
+window.addEventListener("keydown", (event) => {
+  keysPressed[event.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", (event) => {
+  keysPressed[event.key.toLowerCase()] = false;
+});
+
+// Animate() loop
+const clock = new THREE.Clock();
 function animate()
 {
+  const delta = clock.getDelta();
   raycaster.setFromCamera(pointer, camera);
 
+  raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(intersectObjects);
+
+
+  if (mixer) mixer.update(delta);
+  updateCharacterMovement(delta); // 👈 update movement & play animation
 
   if (intersects.length > 0) 
   {
     document.body.style.cursor = "pointer";
+    intersectObject = intersects[0].object.name;
   }
   else
   {
     document.body.style.cursor = "default";
     intersectObject = "";
   }
-
-  for (let i = 0; i < intersects.length; i++)
-  {
-    // console.log(intersects[0].object.name);
-    intersectObject = intersects[0].object.name;
-  }
-
   renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
