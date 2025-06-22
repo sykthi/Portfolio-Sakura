@@ -122,7 +122,7 @@ const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
 fbxLoader.load('3D/roni.fbx', function (fbx) {
   fbx.scale.set(0.01, 0.01, 0.01);
-  fbx.position.set(0, 3, -17);
+  fbx.position.set(0, 1, -17);
   fbx.rotation.set(0, 0, 0);
 
   fbx.traverse(function (child) {
@@ -225,39 +225,6 @@ function onPointerMove( event )
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-function onKeyDown(event) {
-  if (!Character) return; // Ensure model is loaded
-  const speed = 1; // Movement speed
-  
-
-  switch (event.key.toLowerCase()) {
-    case "w":
-    case "arrowup":
-      Character.position.z += speed;
-      Character.rotation.y = degToRad(0);
-      playAnimation("walk");
-      break;
-    case "s":
-    case "arrowdown":
-      Character.position.z -= speed;
-      Character.rotation.y = degToRad(180);
-      playAnimation("walk");
-      break;
-
-    case "a":
-    case "arrowleft":
-      Character.position.x += speed;
-      Character.rotation.y = degToRad(90);
-      playAnimation("walk");
-      break;
-    case "d":
-    case "arrowright":
-      Character.position.x -= speed;
-      Character.rotation.y = degToRad(-90);
-      playAnimation("walk");
-      break;
-  }
-}
 
 function updateCharacterMovement(delta) {
   if (!Character) return;
