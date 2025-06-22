@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { Octree } from "three/addons/math/Octree.js";
+import { Capsule } from "three/addons/math/Capsule.js";
 
 const scene = new THREE.Scene();
 const raycaster = new THREE.Raycaster();
@@ -9,12 +11,21 @@ const pointer = new THREE.Vector2();
 const canvas = document.getElementById("experience-canvas");
 const sizes = {width: innerWidth, height: innerHeight};
 
-const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+// Physics stuff
+const GRAVITY = 30;
+const CAPSULE_RADIUS = 0.35;
+const CAPSULE_HEIGHT = 1;
+const JUMP_HEIGHT = 11;
+const MOVE_SPEED = 7;
 
-let roninCharacter = null;
+let Character = null;
 let mixer = null;
 const animations = {};
 const keysPressed = {};
+
+// Renderer Stuff
+// See: https://threejs.org/docs/?q=render#api/en/constants/Renderer
+const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 
 renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -77,7 +88,7 @@ const intersectObjects = [];
 const intersectObjectsNames = ["fighting_post", "statue_frog", "shrine", "gong",];
 //loading model
 const loader = new GLTFLoader();
-loader.load( '3D/Scene1.glb', function ( glb ) {
+loader.load( '3D/Scene.glb', function ( glb ) {
   glb.scene.rotation.set(0, Math.PI/2, 0);
   glb.scene.traverse((child) => {
     if(intersectObjectsNames.includes(child.name)){
@@ -111,7 +122,7 @@ const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
 fbxLoader.load('3D/roni.fbx', function (fbx) {
   fbx.scale.set(0.01, 0.01, 0.01);
-  fbx.position.set(0, 0, -13);
+  fbx.position.set(0, 3, -17);
   fbx.rotation.set(0, 0, 0);
 
   fbx.traverse(function (child) {
@@ -126,10 +137,10 @@ fbxLoader.load('3D/roni.fbx', function (fbx) {
     }
   });
 
-  roninCharacter = fbx;
+  Character = fbx;
   scene.add(fbx);
 
-  mixer = new THREE.AnimationMixer(roninCharacter);
+  mixer = new THREE.AnimationMixer(Character);
 
   fbxLoader.load('Anim/Walk.fbx', function (anim) {
     const runAction = mixer.clipAction(anim.animations[0]);
@@ -215,62 +226,62 @@ function onPointerMove( event )
 }
 
 function onKeyDown(event) {
-  if (!roninCharacter) return; // Ensure model is loaded
+  if (!Character) return; // Ensure model is loaded
   const speed = 1; // Movement speed
   
 
   switch (event.key.toLowerCase()) {
     case "w":
     case "arrowup":
-      roninCharacter.position.z += speed;
-      roninCharacter.rotation.y = degToRad(0);
+      Character.position.z += speed;
+      Character.rotation.y = degToRad(0);
       playAnimation("walk");
       break;
     case "s":
     case "arrowdown":
-      roninCharacter.position.z -= speed;
-      roninCharacter.rotation.y = degToRad(180);
+      Character.position.z -= speed;
+      Character.rotation.y = degToRad(180);
       playAnimation("walk");
       break;
 
     case "a":
     case "arrowleft":
-      roninCharacter.position.x += speed;
-      roninCharacter.rotation.y = degToRad(90);
+      Character.position.x += speed;
+      Character.rotation.y = degToRad(90);
       playAnimation("walk");
       break;
     case "d":
     case "arrowright":
-      roninCharacter.position.x -= speed;
-      roninCharacter.rotation.y = degToRad(-90);
+      Character.position.x -= speed;
+      Character.rotation.y = degToRad(-90);
       playAnimation("walk");
       break;
   }
 }
 
 function updateCharacterMovement(delta) {
-  if (!roninCharacter) return;
+  if (!Character) return;
 
   const speed = 1.5 * delta; // scale by delta time
   let isMoving = false;
 
   if (keysPressed["w"] || keysPressed["arrowup"]) {
-    roninCharacter.position.z += speed;
-    roninCharacter.rotation.y = degToRad(0);
+    Character.position.z += speed;
+    Character.rotation.y = degToRad(0);
     isMoving = true;
   } else if (keysPressed["s"] || keysPressed["arrowdown"]) {
-    roninCharacter.position.z -= speed;
-    roninCharacter.rotation.y = degToRad(180);
+    Character.position.z -= speed;
+    Character.rotation.y = degToRad(180);
     isMoving = true;
   }
 
   if (keysPressed["a"] || keysPressed["arrowleft"]) {
-    roninCharacter.position.x += speed;
-    roninCharacter.rotation.y = degToRad(90);
+    Character.position.x += speed;
+    Character.rotation.y = degToRad(90);
     isMoving = true;
   } else if (keysPressed["d"] || keysPressed["arrowright"]) {
-    roninCharacter.position.x -= speed;
-    roninCharacter.rotation.y = degToRad(-90);
+    Character.position.x -= speed;
+    Character.rotation.y = degToRad(-90);
     isMoving = true;
   }
 
