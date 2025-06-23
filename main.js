@@ -23,6 +23,16 @@ let mixer = null;
 const animations = {};
 const keysPressed = {};
 
+const colliderOctree = new Octree();
+const playerCollider = new Capsule(
+  new THREE.Vector3(0, CAPSULE_RADIUS, 0),
+  new THREE.Vector3(0, CAPSULE_HEIGHT, 0),
+  CAPSULE_RADIUS
+);
+
+let playerVelocity = new THREE.Vector3();
+let playerOnFloor = false;
+
 // Renderer Stuff
 // See: https://threejs.org/docs/?q=render#api/en/constants/Renderer
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
@@ -106,6 +116,11 @@ loader.load( '3D/Scene.glb', function ( glb ) {
         child.material.opacity = 0.7;
       }
     }
+    if(child.name === "Ground_Collider")
+    {
+      child.visible = false; // hide collider
+      colliderOctree.fromGraphNode(child);
+    }
   });
   
   scene.add( glb.scene );
@@ -122,36 +137,36 @@ const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
 fbxLoader.load('3D/roni.fbx', function (fbx) {
   fbx.scale.set(0.01, 0.01, 0.01);
-  fbx.position.set(0, 1, -17);
   fbx.rotation.set(0, 0, 0);
 
   fbx.traverse(function (child) {
     if (child.isMesh) {
       child.castShadow = true;
       child.receiveShadow = true;
-      if(child.material.name === "BodyColor")
-      {
-        child.material.metalness = 0.01;
-        child.material.roughness = 1;
-      }
     }
   });
 
   Character = fbx;
   scene.add(fbx);
 
+  // ✅ Set initial collider position manually above ground
+  const startPosition = new THREE.Vector3(0, 5, -17);
+  playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
+  playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
+
   mixer = new THREE.AnimationMixer(Character);
 
   fbxLoader.load('Anim/Walk.fbx', function (anim) {
     const runAction = mixer.clipAction(anim.animations[0]);
-    animations["walk"] = runAction; // just name it "walk" to match 
-  });
-  fbxLoader.load('Anim/Idle.fbx', function (anim) {
-    const runAction = mixer.clipAction(anim.animations[0]);
-    animations["idle"] = runAction; // just name it "walk" to match 
+    animations["walk"] = runAction;
   });
 
+  fbxLoader.load('Anim/Idle.fbx', function (anim) {
+    const runAction = mixer.clipAction(anim.animations[0]);
+    animations["idle"] = runAction;
+  });
 });
+
 
 function playAnimation(name) {
   if (!animations[name]) return;
@@ -229,37 +244,52 @@ function onPointerMove( event )
 function updateCharacterMovement(delta) {
   if (!Character) return;
 
-  const speed = 1.5 * delta; // scale by delta time
-  let isMoving = false;
+  const direction = new THREE.Vector3();
+  const speed = MOVE_SPEED;
 
+  // WASD / arrow key input
   if (keysPressed["w"] || keysPressed["arrowup"]) {
-    Character.position.z += speed;
-    Character.rotation.y = degToRad(0);
-    isMoving = true;
-  } else if (keysPressed["s"] || keysPressed["arrowdown"]) {
-    Character.position.z -= speed;
-    Character.rotation.y = degToRad(180);
-    isMoving = true;
+    direction.z += 1;
   }
-
+  if (keysPressed["s"] || keysPressed["arrowdown"]) {
+    direction.z -= 1;
+  }
   if (keysPressed["a"] || keysPressed["arrowleft"]) {
-    Character.position.x += speed;
-    Character.rotation.y = degToRad(90);
-    isMoving = true;
-  } else if (keysPressed["d"] || keysPressed["arrowright"]) {
-    Character.position.x -= speed;
-    Character.rotation.y = degToRad(-90);
-    isMoving = true;
+    direction.x += 1;
+  }
+  if (keysPressed["d"] || keysPressed["arrowright"]) {
+    direction.x -= 1;
   }
 
-  if (isMoving)
-  {
-  playAnimation("walk");
-  } 
-  else
-  {
-  playAnimation("idle");
+  let isMoving = direction.lengthSq() > 0;
+
+  if (isMoving) {
+    direction.normalize();
+
+    // Apply to horizontal velocity (retain y velocity from gravity)
+    playerVelocity.x = direction.x * speed;
+    playerVelocity.z = direction.z * speed;
+
+    // Rotate mesh visually to face direction
+    if (Character) {
+      const angle = Math.atan2(direction.x, direction.z);
+      Character.rotation.y = angle;
+    }
+
+    playAnimation("walk");
+  } else {
+    // Stop horizontal movement
+    playerVelocity.x = 0;
+    playerVelocity.z = 0;
+
+    playAnimation("idle");
   }
+}
+
+function onKeyDown(event) {
+  if ((event.key === " " || event.code === "Space") && playerOnFloor) {
+  playerVelocity.y = JUMP_HEIGHT;
+}
 
 }
 
@@ -278,18 +308,58 @@ window.addEventListener("keyup", (event) => {
   keysPressed[event.key.toLowerCase()] = false;
 });
 
+function applyPlayerPhysics(delta) {
+  // Apply gravity
+  if (!playerOnFloor) {
+    playerVelocity.y -= GRAVITY * delta;
+  }
+
+  // Limit falling speed
+  if (playerVelocity.y < -50) {
+    playerVelocity.y = -50;
+  }
+
+  // Move collider based on velocity
+  const deltaPosition = playerVelocity.clone().multiplyScalar(delta);
+  playerCollider.translate(deltaPosition);
+
+  // Check collisions using the Octree
+  const result = colliderOctree.capsuleIntersect(playerCollider);
+
+  playerOnFloor = false;
+
+  if (result) {
+    // If there's a collision, resolve it
+    playerOnFloor = result.normal.y > 0;
+
+    // Push the collider out of geometry
+    playerCollider.translate(result.normal.multiplyScalar(result.depth));
+
+    // If on ground, nullify downward velocity
+    if (playerOnFloor) {
+      playerVelocity.y = 0;
+    } else {
+      // Slide along walls (optional)
+      playerVelocity.addScaledVector(result.normal, -result.normal.dot(playerVelocity));
+    }
+  }
+
+  // Sync character mesh to collider
+  const newPosition = playerCollider.start.clone().add(new THREE.Vector3(0, -CAPSULE_RADIUS, 0));
+  if (Character) Character.position.copy(newPosition);
+}
+
 // Animate() loop
 const clock = new THREE.Clock();
 function animate()
 {
   const delta = clock.getDelta();
   raycaster.setFromCamera(pointer, camera);
-
-  raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(intersectObjects);
 
 
   if (mixer) mixer.update(delta);
+  applyPlayerPhysics(delta);  
   updateCharacterMovement(delta); // 👈 update movement & play animation
 
   if (intersects.length > 0) 
