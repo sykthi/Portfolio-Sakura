@@ -134,7 +134,6 @@ loader.load( '3D/Scene.glb', function ( glb ) {
 } );
 
 //loading character
-
 const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
 fbxLoader.load('3D/roni.fbx', function (fbx) {
@@ -183,19 +182,15 @@ fbxLoader.load('3D/roni.fbx', function (fbx) {
 });
 
 let currentAction = null;
-
 function playAnimation(name) {
   const nextAction = animations[name];
   if (!nextAction || nextAction === currentAction) return;
-
   // Fade in new animation
   nextAction.reset().fadeIn(0.3).play();
-
   // Cross-fade from current to next
   if (currentAction) {
     currentAction.crossFadeTo(nextAction, 0.3, false);
   }
-
   currentAction = nextAction;
 }
 
@@ -261,7 +256,6 @@ function onPointerMove( event )
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
-
 function updateCharacterMovement(delta) {
   if (!Character) return;
 
@@ -314,12 +308,6 @@ function updateCharacterMovement(delta) {
   }
 }
 
-function onKeyDown(event) {
-  if ((event.key === " " || event.code === "Space") && playerOnFloor) {
-  playerVelocity.y = JUMP_HEIGHT;
-}
-}
-
 window.addEventListener("keydown", (event) => {
   keysPressed[event.key.toLowerCase()] = true;
   // Shift = run
@@ -338,7 +326,6 @@ window.addEventListener("keyup", (event) => {
 
 modalExitButton.addEventListener("click", hideModel);
 window.addEventListener("resize", onResize);
-// window.addEventListener("keydown", onKeyDown);
 window.addEventListener("click", onclick);
 window.addEventListener("pointermove", onPointerMove);
 
@@ -442,8 +429,6 @@ function animate()
 
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(intersectObjects);
-
-
 
   if (intersects.length > 0) 
   {
