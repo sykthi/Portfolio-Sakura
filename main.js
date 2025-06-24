@@ -218,7 +218,7 @@ sun.shadow.camera.left = -35;
 sun.shadow.camera.right = 35;
 sun.shadow.camera.top = 35;
 sun.shadow.camera.bottom = -35;
-sun.shadow.normalBias = .2;
+sun.shadow.normalBias = .15;
 scene.add( sun );
 
 //const shadowHelper = new THREE.CameraHelper( sun.shadow.camera );
@@ -254,7 +254,11 @@ composer.addPass(outlinePass);
 
 // Optional: FXAA for better outline edges
 const effectFXAA = new ShaderPass(FXAAShader);
-effectFXAA.uniforms['resolution'].value.set(1 / sizes.width, 1 / sizes.height);
+const scaleFactor = 1.5; // increase for sharper outlines
+effectFXAA.uniforms['resolution'].value.set(
+  1 / (sizes.width * scaleFactor),
+  1 / (sizes.height * scaleFactor)
+);
 composer.addPass(effectFXAA);
 
 // Outline effect style
