@@ -4,6 +4,12 @@ import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
 
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+
 const scene = new THREE.Scene();
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -96,6 +102,7 @@ function hideModel()
 
 let intersectObject = "";
 const intersectObjects = [];
+const clickableObjects = [];
 const intersectObjectsNames = ["fighting_post", "statue_frog", "shrine", "gong",];
 //loading model
 const loader = new GLTFLoader();
@@ -109,6 +116,11 @@ loader.load( '3D/Scene.glb', function ( glb ) {
     {
       child.castShadow = true;
       child.receiveShadow = true;
+
+      if (child.material.name === "Clickables") {
+        clickableObjects.push(child);  // <== Add to highlight list
+      }
+
       if(child.material.name === "Water")
       {
         child.material.metalness = .7;
@@ -125,6 +137,7 @@ loader.load( '3D/Scene.glb', function ( glb ) {
   });
   
   scene.add( glb.scene );
+  outlinePass.selectedObjects = clickableObjects;
   isSceneReady = true;
   
 }, undefined, function ( error ) {
@@ -151,7 +164,7 @@ fbxLoader.load('3D/roni.fbx', function (fbx) {
   scene.add(fbx);
 
   // ✅ Set initial collider position manually above ground
-  const startPosition = new THREE.Vector3(0, 5, -17.5);
+  const startPosition = new THREE.Vector3(0, 5, -5);
   playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
 
@@ -228,6 +241,31 @@ const cameraoffset = new THREE.Vector3( 10, 10,-10);
 camera.zoom = 10;
 camera.updateProjectionMatrix();
 
+// Post-processing setup
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const outlinePass = new OutlinePass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  scene,
+  camera
+);
+composer.addPass(outlinePass);
+
+// Optional: FXAA for better outline edges
+const effectFXAA = new ShaderPass(FXAAShader);
+effectFXAA.uniforms['resolution'].value.set(1 / sizes.width, 1 / sizes.height);
+composer.addPass(effectFXAA);
+
+// Outline effect style
+outlinePass.edgeStrength = 3.0;
+outlinePass.edgeGlow = 1;
+outlinePass.edgeThickness = 5;
+outlinePass.pulsePeriod = 5.0; // set to >0 for pulsing glow
+outlinePass.visibleEdgeColor.set('#ffff00');
+outlinePass.hiddenEdgeColor.set('#000000');
+
+
 function onResize()
 {
   sizes.width = window.innerWidth;
@@ -240,6 +278,9 @@ function onResize()
   
   camera.updateProjectionMatrix();
   renderer.setSize(sizes.width, sizes.height);
+  composer.setSize(sizes.width, sizes.height);
+effectFXAA.uniforms['resolution'].value.set(1 / sizes.width, 1 / sizes.height);
+
 }
 
 function onclick()
@@ -440,6 +481,8 @@ function animate()
     document.body.style.cursor = "default";
     intersectObject = "";
   }
-  renderer.render( scene, camera );
+  // renderer.render( scene, camera );
+  composer.render();
+
 }
 renderer.setAnimationLoop( animate );
