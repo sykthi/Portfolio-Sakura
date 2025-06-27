@@ -489,4 +489,72 @@ function animate()
   composer.render();
 
 }
+// 📱 Mobile Controls (simulate keysPressed)
+
+const joystick = document.getElementById('joystick');
+const container = document.getElementById('joystick-container');
+const runButton = document.getElementById('run-button');
+
+let activeTouchId = null;
+let origin = { x: 0, y: 0 };
+
+container.addEventListener('touchstart', (e) => {
+  const touch = e.targetTouches[0];
+  activeTouchId = touch.identifier;
+  origin.x = touch.clientX;
+  origin.y = touch.clientY;
+});
+
+container.addEventListener('touchmove', (e) => {
+  for (let touch of e.changedTouches) {
+    if (touch.identifier === activeTouchId) {
+      const dx = touch.clientX - origin.x;
+      const dy = touch.clientY - origin.y;
+
+      const distance = Math.min(40, Math.hypot(dx, dy));
+      const angle = Math.atan2(dy, dx);
+
+      const x = distance * Math.cos(angle);
+      const y = distance * Math.sin(angle);
+
+      joystick.style.transform = `translate(${x}px, ${y}px)`;
+
+      // Map movement to keysPressed
+      keysPressed["w"] = dy < -15;
+      keysPressed["s"] = dy > 15;
+      keysPressed["a"] = dx < -15;
+      keysPressed["d"] = dx > 15;
+
+      break;
+    }
+  }
+});
+
+container.addEventListener('touchend', (e) => {
+  for (let touch of e.changedTouches) {
+    if (touch.identifier === activeTouchId) {
+      activeTouchId = null;
+      joystick.style.transform = `translate(0px, 0px)`;
+
+      keysPressed["w"] = false;
+      keysPressed["s"] = false;
+      keysPressed["a"] = false;
+      keysPressed["d"] = false;
+
+      break;
+    }
+  }
+});
+
+// Run Button = shift key
+runButton.addEventListener("touchstart", () => {
+  keysPressed["shift"] = true;
+  MOVE_SPEED = 5;
+});
+
+runButton.addEventListener("touchend", () => {
+  keysPressed["shift"] = false;
+  MOVE_SPEED = 2;
+});
+
 renderer.setAnimationLoop( animate );
