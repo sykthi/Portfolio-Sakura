@@ -35,9 +35,9 @@
     transform: translate(-50%, -50%);
     width: 100%;
     max-width: 700px;
-    background-color: rgb(224, 107, 199);
+    background-color: rgb(122, 60, 60);
     border: 2px solid #fff;
-    /* border-radius: 5px; */
+    border-radius: 5px;
     /* line-height: 50px; */
     color: #fff;
     letter-spacing: 1px;

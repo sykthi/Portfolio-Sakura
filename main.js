@@ -150,7 +150,7 @@ loader.load( '3D/Scene.glb', function ( glb ) {
 //loading character
 const fbxLoader = new FBXLoader();
 const degToRad = (deg) => deg * (Math.PI / 180);
-fbxLoader.load('3D/roni.fbx', function (fbx) {
+fbxLoader.load('3D/Ronin.fbx', function (fbx) {
   fbx.scale.set(0.01, 0.01, 0.01);
   fbx.rotation.set(0, 0, 0);
 
@@ -285,36 +285,43 @@ sunIcon.style.display = "none";
 moonIcon.style.display = "block";
 
 document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
-
 function toggleTheme() {
+  document.body.classList.toggle("dark-theme");
+  document.body.classList.toggle("light-theme");
+
   const isDarkTheme = document.body.classList.contains("dark-theme");
 
-  document.body.classList.toggle("light-theme");
-  document.body.classList.toggle("dark-theme");
-
-  sunIcon.style.display = isDarkTheme ? "block" : "none";
-  moonIcon.style.display = isDarkTheme ? "none" : "block";
+  sunIcon.style.display = isDarkTheme ? "none" : "block";
+  moonIcon.style.display = isDarkTheme ? "block" : "none";
 
   if (isDarkTheme) {
-    // Switch to Night
+    // 🌙 DARK MODE
     gsap.to(light.color, {
-      r: 0.25, g: 0.31, b: 0.78,
-      duration: 1, ease: "power2.inOut",
+      r: 0.25,
+      g: 0.31,
+      b: 0.78,
+      duration: 1,
+      ease: "power2.inOut",
     });
     gsap.to(light, {
-      intensity: 0.8,
-      duration: 1, ease: "power2.inOut",
+      intensity: 1,
+      duration: 1,
+      ease: "power2.inOut",
     });
     gsap.to(sun.color, {
-      r: 0.25, g: 0.41, b: 0.88,
-      duration: 1, ease: "power2.inOut",
+      r: 0.25,
+      g: 0.41,
+      b: 0.88,
+      duration: 1,
+      ease: "power2.inOut",
     });
     gsap.to(sun, {
       intensity: 0.8,
-      duration: 1, ease: "power2.inOut",
+      duration: 1,
+      ease: "power2.inOut",
     });
   } else {
-    // Switch to Day (restore original)
+    // ☀️ LIGHT MODE — restore original values
     gsap.to(light.color, {
       r: dayLightColor.r,
       g: dayLightColor.g,
@@ -341,7 +348,6 @@ function toggleTheme() {
     });
   }
 }
-
 
 
 function onResize()
