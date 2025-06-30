@@ -23,6 +23,7 @@ const CAPSULE_HEIGHT = 1;
 const JUMP_HEIGHT = 11;
 let MOVE_SPEED = 2;
 
+
 let Character = null;
 let mixer = null;
 const animations = {};
@@ -164,7 +165,7 @@ fbxLoader.load('3D/roni.fbx', function (fbx) {
   scene.add(fbx);
 
   // ✅ Set initial collider position manually above ground
-  const startPosition = new THREE.Vector3(0, 5, -5);
+  const startPosition = new THREE.Vector3(0, 5, -17.5); // same as original
   playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
 
@@ -230,6 +231,11 @@ scene.add( sun );
 const light = new THREE.AmbientLight( 0x404040, 5); // soft white light
 scene.add( light );
 
+const dayLightColor = light.color.clone();
+const daySunColor = sun.color.clone();
+const dayLightIntensity = light.intensity;
+const daySunIntensity = sun.intensity;
+
 const aspect = sizes.width/sizes.height;
 const camera = new THREE.OrthographicCamera( -aspect * 50, aspect * 50, 50, -50, .1, 1000 );
 
@@ -268,6 +274,74 @@ outlinePass.edgeThickness = 5;
 outlinePass.pulsePeriod = 5.0; // set to >0 for pulsing glow
 outlinePass.visibleEdgeColor.set('#ffff00');
 outlinePass.hiddenEdgeColor.set('#000000');
+
+
+const sunIcon = document.getElementById("sun-icon");
+const moonIcon = document.getElementById("moon-icon");
+
+// ✅ Set initial theme to light and icons
+document.body.classList.add("light-theme");
+sunIcon.style.display = "none";
+moonIcon.style.display = "block";
+
+document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+function toggleTheme() {
+  const isDarkTheme = document.body.classList.contains("dark-theme");
+
+  document.body.classList.toggle("light-theme");
+  document.body.classList.toggle("dark-theme");
+
+  sunIcon.style.display = isDarkTheme ? "block" : "none";
+  moonIcon.style.display = isDarkTheme ? "none" : "block";
+
+  if (isDarkTheme) {
+    // Switch to Night
+    gsap.to(light.color, {
+      r: 0.25, g: 0.31, b: 0.78,
+      duration: 1, ease: "power2.inOut",
+    });
+    gsap.to(light, {
+      intensity: 0.8,
+      duration: 1, ease: "power2.inOut",
+    });
+    gsap.to(sun.color, {
+      r: 0.25, g: 0.41, b: 0.88,
+      duration: 1, ease: "power2.inOut",
+    });
+    gsap.to(sun, {
+      intensity: 0.8,
+      duration: 1, ease: "power2.inOut",
+    });
+  } else {
+    // Switch to Day (restore original)
+    gsap.to(light.color, {
+      r: dayLightColor.r,
+      g: dayLightColor.g,
+      b: dayLightColor.b,
+      duration: 1,
+      ease: "power2.inOut",
+    });
+    gsap.to(light, {
+      intensity: dayLightIntensity,
+      duration: 1,
+      ease: "power2.inOut",
+    });
+    gsap.to(sun.color, {
+      r: daySunColor.r,
+      g: daySunColor.g,
+      b: daySunColor.b,
+      duration: 1,
+      ease: "power2.inOut",
+    });
+    gsap.to(sun, {
+      intensity: daySunIntensity,
+      duration: 1,
+      ease: "power2.inOut",
+    });
+  }
+}
+
 
 
 function onResize()
