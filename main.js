@@ -235,6 +235,7 @@ const dayLightColor = light.color.clone();
 const daySunColor = sun.color.clone();
 const dayLightIntensity = light.intensity;
 const daySunIntensity = sun.intensity;
+const setduration = 2;
 
 const aspect = sizes.width/sizes.height;
 const camera = new THREE.OrthographicCamera( -aspect * 50, aspect * 50, 50, -50, .1, 1000 );
@@ -286,64 +287,64 @@ moonIcon.style.display = "block";
 
 document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
 function toggleTheme() {
+  // First, toggle classes
   document.body.classList.toggle("dark-theme");
   document.body.classList.toggle("light-theme");
 
+  // Now read the current (new) state
   const isDarkTheme = document.body.classList.contains("dark-theme");
 
-  sunIcon.style.display = isDarkTheme ? "none" : "block";
-  moonIcon.style.display = isDarkTheme ? "block" : "none";
+  // Update icon display based on new state
+  sunIcon.style.display = isDarkTheme ? "block" : "none";
+  moonIcon.style.display = isDarkTheme ? "none" : "block";
 
+  // Now apply lighting changes
   if (isDarkTheme) {
-    // 🌙 DARK MODE
-    gsap.to(light.color, {
-      r: 0.25,
-      g: 0.31,
-      b: 0.78,
-      duration: 1,
-      ease: "power2.inOut",
-    });
-    gsap.to(light, {
-      intensity: 1,
-      duration: 1,
-      ease: "power2.inOut",
-    });
-    gsap.to(sun.color, {
-      r: 0.25,
-      g: 0.41,
-      b: 0.88,
-      duration: 1,
-      ease: "power2.inOut",
-    });
-    gsap.to(sun, {
-      intensity: 0.8,
-      duration: 1,
-      ease: "power2.inOut",
-    });
+    // 🌙 NIGHT MODE
+    gsap.to(light.color, { 
+      r: 0.25, 
+      g: 0.31, 
+      b: 0.78, 
+      duration: setduration, 
+      ease: "power2.inOut" });
+    gsap.to(light, { 
+      intensity: 2,
+      duration: setduration, 
+      ease: "power2.inOut" });
+    gsap.to(sun.color, { 
+      r: 0.25, 
+      g: 0.41, 
+      b: 0.88, 
+      duration: setduration, 
+      ease: "power2.inOut" });
+    gsap.to(sun, { 
+      intensity: .5, 
+      duration: setduration, 
+      ease: "power2.inOut" });
   } else {
-    // ☀️ LIGHT MODE — restore original values
+    // ☀️ DAY MODE (restore original)
     gsap.to(light.color, {
       r: dayLightColor.r,
       g: dayLightColor.g,
       b: dayLightColor.b,
-      duration: 1,
+      duration: setduration,
       ease: "power2.inOut",
     });
     gsap.to(light, {
       intensity: dayLightIntensity,
-      duration: 1,
+      duration: setduration,
       ease: "power2.inOut",
     });
     gsap.to(sun.color, {
       r: daySunColor.r,
       g: daySunColor.g,
       b: daySunColor.b,
-      duration: 1,
+      duration: setduration,
       ease: "power2.inOut",
     });
     gsap.to(sun, {
       intensity: daySunIntensity,
-      duration: 1,
+      duration: setduration,
       ease: "power2.inOut",
     });
   }
