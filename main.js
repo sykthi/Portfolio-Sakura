@@ -52,6 +52,15 @@ renderer.shadowMap.enabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.75;
 
+fetch("./projects.json")
+  .then(res => res.json())
+  .then(data => {
+    modalContent["shrine"].content = data["shrine"];
+  })
+  .catch((err) => {
+    console.error("Failed to load shrine content:", err);
+  });
+
 const modalContent = {
   "gong":{
     title: "About",
@@ -59,26 +68,7 @@ const modalContent = {
   },
   "shrine": {
     title: "Projects",
-    content: [
-      {
-        title: "Clarify Me",
-        description: "A peer-to-peer student Q&A platform.",
-        link: "https://github.com/sykthi/clarify-me",
-        image: "./img/jiri.jpg"
-      },
-      {
-        title: "Virtual Lab",
-        description: "An immersive VR physics lab built with Unity and Meta Quest SDK.",
-        link: "https://github.com/sykthi/virtual-lab",
-        image: "./img/lisa.jpg"
-      },
-      {
-        title: "Picktree",
-        description: "A mobile idle game with shop and core gameplay loops.",
-        link: "https://github.com/sykthi/picktree",
-        image: "./img/pexel.jpg"
-      }
-    ]
+    content: []
   },
   "fighting_post":{
     title: "skill",
