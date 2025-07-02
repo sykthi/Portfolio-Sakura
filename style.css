@@ -55,6 +55,15 @@
     justify-content: space-between;
 }
 
+.modal-exit-button{
+    /* padding: 7px 7px; */
+    cursor: pointer;
+    font-size: 2rem;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
 #mobile-controls {
   position: absolute;
   bottom: 2vh;
@@ -106,6 +115,8 @@
     display: none;
   }
 }
+
+/* Theme styles */
 body.light-theme {
   background-color: #ffffff;
   color: #000000;
@@ -129,3 +140,68 @@ body.dark-theme {
   width: 100%;
   height: 100%;
 }
+
+/* Modal Project */
+.modal-project-description {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.project-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  margin: 12px 0px;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+.left {
+  width: 60%;
+  padding: 10px;
+  line-height: 20px;
+}
+.right {
+  width: 40%;
+}
+.project-card h3 {
+  margin-bottom: 4px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.project-card p {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #eee;
+}
+
+.modal-project-link-button {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #fff;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.modal-project-link-button:hover {
+  background-color: #ddd;
+}
+
+.project-card-image {
+  width: 100%;
+  height: auto;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+

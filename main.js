@@ -57,10 +57,28 @@ const modalContent = {
     title: "About",
     content: "i am",
   },
-  "shrine":{
-    title: "Project",
-    content: "This is project",
-    link: "https://github.com/sykthi",
+  "shrine": {
+    title: "Projects",
+    content: [
+      {
+        title: "Clarify Me",
+        description: "A peer-to-peer student Q&A platform.",
+        link: "https://github.com/sykthi/clarify-me",
+        image: "./img/jiri.jpg"
+      },
+      {
+        title: "Virtual Lab",
+        description: "An immersive VR physics lab built with Unity and Meta Quest SDK.",
+        link: "https://github.com/sykthi/virtual-lab",
+        image: "./img/lisa.jpg"
+      },
+      {
+        title: "Picktree",
+        description: "A mobile idle game with shop and core gameplay loops.",
+        link: "https://github.com/sykthi/picktree",
+        image: "./img/pexel.jpg"
+      }
+    ]
   },
   "fighting_post":{
     title: "skill",
@@ -83,7 +101,40 @@ function showModal(id)
   const content = modalContent[id];
   if (content){
     modalTitle.textContent = content.title;
-    modalProjectDescription.textContent = content.content;
+    modalProjectDescription.innerHTML = ""; // clear old content
+
+    if (Array.isArray(content.content)) {
+      const template = document.getElementById("project-card-template");
+
+      content.content.forEach((project) => {
+        const clone = template.content.cloneNode(true);
+
+        clone.querySelector(".project-title").textContent = project.title;
+        clone.querySelector(".project-description").textContent = project.description;
+
+        const link = clone.querySelector(".modal-project-link-button");
+        link.href = project.link || "#";
+        link.style.display = project.link ? "inline-block" : "none";
+
+        const img = clone.querySelector(".project-card-image");
+        img.src = project.image || "";
+        img.alt = project.title || "";
+
+        modalProjectDescription.appendChild(clone);
+      });
+
+
+      modalVisitProjectButton.classList.add("hidden"); // hide default button
+    } else {
+      modalProjectDescription.textContent = content.content;
+
+      if (content.link) {
+        modalVisitProjectButton.href = content.link;
+        modalVisitProjectButton.classList.remove("hidden");
+      } else {
+        modalVisitProjectButton.classList.add("hidden");
+      }
+    }
 
     if(content.link){
       modalVisitProjectButton.href = content.link
@@ -261,7 +312,7 @@ composer.addPass(outlinePass);
 
 // Optional: FXAA for better outline edges
 const effectFXAA = new ShaderPass(FXAAShader);
-const scaleFactor = 1.5; // increase for sharper outlines
+const scaleFactor = 2; // increase for sharper outlines
 effectFXAA.uniforms['resolution'].value.set(
   1 / (sizes.width * scaleFactor),
   1 / (sizes.height * scaleFactor)
