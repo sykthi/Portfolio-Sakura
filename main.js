@@ -299,55 +299,33 @@ function toggleTheme() {
   moonIcon.style.display = isDarkTheme ? "none" : "block";
 
   // Now apply lighting changes
-  if (isDarkTheme) {
-    // 🌙 NIGHT MODE
-    gsap.to(light.color, { 
-      r: 0.25, 
-      g: 0.31, 
-      b: 0.78, 
-      duration: setduration, 
-      ease: "power2.inOut" });
-    gsap.to(light, { 
-      intensity: 2,
-      duration: setduration, 
-      ease: "power2.inOut" });
-    gsap.to(sun.color, { 
-      r: 0.25, 
-      g: 0.41, 
-      b: 0.88, 
-      duration: setduration, 
-      ease: "power2.inOut" });
-    gsap.to(sun, { 
-      intensity: .5, 
-      duration: setduration, 
-      ease: "power2.inOut" });
-  } else {
-    // ☀️ DAY MODE (restore original)
-    gsap.to(light.color, {
-      r: dayLightColor.r,
-      g: dayLightColor.g,
-      b: dayLightColor.b,
-      duration: setduration,
-      ease: "power2.inOut",
-    });
-    gsap.to(light, {
-      intensity: dayLightIntensity,
-      duration: setduration,
-      ease: "power2.inOut",
-    });
-    gsap.to(sun.color, {
-      r: daySunColor.r,
-      g: daySunColor.g,
-      b: daySunColor.b,
-      duration: setduration,
-      ease: "power2.inOut",
-    });
-    gsap.to(sun, {
-      intensity: daySunIntensity,
-      duration: setduration,
-      ease: "power2.inOut",
-    });
-  }
+  gsap.to(light.color, {
+    r: isDarkTheme ? 0.25 : dayLightColor.r,
+    g: isDarkTheme ? 0.31 : dayLightColor.g,
+    b: isDarkTheme ? 0.78 : dayLightColor.b,
+    duration: setduration,
+    ease: "power2.inOut",
+  });
+
+  gsap.to(light, {
+    intensity: isDarkTheme ? 2 : dayLightIntensity,
+    duration: setduration,
+    ease: "power2.inOut",
+  });
+
+  gsap.to(sun.color, {
+    r: isDarkTheme ? 0.25 : daySunColor.r,
+    g: isDarkTheme ? 0.41 : daySunColor.g,
+    b: isDarkTheme ? 0.88 : daySunColor.b,
+    duration: setduration,
+    ease: "power2.inOut",
+  });
+
+  gsap.to(sun, {
+    intensity: isDarkTheme ? 0.5 : daySunIntensity,
+    duration: setduration,
+    ease: "power2.inOut",
+  });
 }
 
 
