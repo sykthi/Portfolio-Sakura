@@ -4,19 +4,19 @@
       "title": "Dodger",
       "description": "Dodger is a 3D racing game designed for two players to race against each other. The game includes a race track with a start and finish line. Players must dodge each other and avoid hits, as five collisions with the other player's vehicle will result in a loss. If both players avoid collisions, the first player to cross the finish line wins the race.",
       "link": "https://github.com/sykthi/Dodger",
-      "image": "./img/jiri.jpg"
+      "image": "./img/1.jpeg"
     },
     {
       "title": "Virtual Lab",
       "description": "Virtual Lab is an immersive Virtual Reality (VR) application designed to simulate real-world physics experiments in a safe, scalable, and interactive virtual environment. Developed using Unity3D and the Meta XR All-in-One SDK, this project aims to enhance STEM education by bridging the gap between theoretical knowledge and practical application through realistic simulations.",
       "link": "https://github.com/sykthi/virtual-lab",
-      "image": "./img/lisa.jpg"
+      "image": "./img/lisa.jpeg"
     },
     {
       "title": "BeGone",
       "description": "BeGone is a fast-paced 3D space shooter developed in Unity, where players pilot a spaceship through hostile territory while battling waves of enemy drones. The objective is to survive intense combat scenarios, eliminate enemies, and escape the zone. The game features responsive flight controls, projectile-based shooting mechanics, and immersive space environments.",
       "link": "https://github.com/sykthi/BeGone",
-      "image": "./img/pexel.jpg"
+      "image": "./img/begone.jpeg"
     }
   ]
 }

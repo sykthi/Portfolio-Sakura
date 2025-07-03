@@ -93,7 +93,7 @@ const modalContent = {
     content:{
       resume: "./resume.pdf", // path to your resume file
       github: "https://github.com/sykthi",
-      linkedin: "https://linkedin.com/in/sakthi-nivas"
+      linkedin: "https://www.linkedin.com/in/sakthinivas/"
     }
   },
 };
