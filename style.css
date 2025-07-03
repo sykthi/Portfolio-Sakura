@@ -62,9 +62,11 @@
 /* Modal Project */
 .modal-project-description {
   max-height: 400px;
+  margin: 12px 0;
   overflow-y: auto;
   padding-right: 8px;
   color: #5e5550;
+  text-align: justify;
   /* For WebKit browsers */
   scrollbar-width: thin; /* width of the scrollbar */
   scrollbar-color: #8a7f77 #ffffff10; /* thumb / track */

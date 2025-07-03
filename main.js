@@ -17,10 +17,10 @@ const canvas = document.getElementById("experience-canvas");
 const sizes = {width: innerWidth, height: innerHeight};
 
 // Physics stuff
-const GRAVITY = 30;
+const GRAVITY = 9.807;
 const CAPSULE_RADIUS = 0.35;
 const CAPSULE_HEIGHT = 1;
-const JUMP_HEIGHT = 11;
+const JUMP_HEIGHT = 4;
 let MOVE_SPEED = 2;
 
 
@@ -64,7 +64,7 @@ fetch("./projects.json")
 const modalContent = {
   "gong":{
     title: "About",
-    content: "i am",
+    content: "Hi, I'm Sakthinivas aka scar and I’m passionate Unity game developer with expertise in creating immersive 3D visuals, user interfaces, and web applications. Over the years, I’ve had the opportunity to work on a variety of game genres, from hypercasual, multiplayer, and platform games. With a strong focus on code optimization, performance, and creativity, I bring ideas to life through engaging gameplay and intuitive user experiences.",
   },
   "shrine": {
     title: "Projects",
@@ -72,7 +72,21 @@ const modalContent = {
   },
   "fighting_post":{
     title: "skill",
-    content: "i have skills",
+    content: {
+    education: [
+      {
+        degree: "Master of Computer Applications",
+        year: "2023–2025",
+        institute: "SRM Institute of Science and Technology, K.T.R"
+      },
+    ],
+    skills: {
+      "Web Development": ["HTML", "CSS", "JavaScript", "React"],
+      "Game Development": ["Unity3D", "C#", "VR", "NavMesh", "Animations"],
+      "3D & Graphics": ["Three.js", "Blender", "GLTF", "FBX"],
+      "Tools": ["Git", "VSCode", "Photoshop"]
+    }
+  }
   },
   "statue_frog":{
     title: "Contact",
@@ -206,7 +220,7 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
   scene.add(fbx);
 
   // ✅ Set initial collider position manually above ground
-  const startPosition = new THREE.Vector3(0, 5, -17.5); // same as original
+  const startPosition = new THREE.Vector3(10, 1, 0); // same as original
   playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
 
