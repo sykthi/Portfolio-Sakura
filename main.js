@@ -418,7 +418,7 @@ camera.position.y = 10;
 camera.position.z = -10;
 
 const cameraoffset = new THREE.Vector3( 10, 10,-10);
-camera.zoom = 15;
+camera.zoom = 20;
 camera.updateProjectionMatrix();
 
 // Post-processing setup
