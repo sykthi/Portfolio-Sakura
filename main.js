@@ -73,24 +73,28 @@ const modalContent = {
   "fighting_post":{
     title: "skill",
     content: {
-    education: [
-      {
-        degree: "Master of Computer Applications",
-        year: "2023–2025",
-        institute: "SRM Institute of Science and Technology, K.T.R"
+      education: [
+        {
+          degree: "Master of Computer Applications",
+          year: "2023–2025",
+          institute: "SRM Institute of Science and Technology, K.T.R"
+        },
+      ],
+      skills: {
+        "Game Development": ["Unity3D", "C#", "VR"],
+        "Web Development": ["HTML", "CSS", "JavaScript", "React"],
+        "3D & Graphics": ["Three.js", "Blender", "Photoshop","illustrator"],
+        "Tools": ["Git", "VSCode"]
       },
-    ],
-    skills: {
-      "Web Development": ["HTML", "CSS", "JavaScript", "React"],
-      "Game Development": ["Unity3D", "C#", "VR", "NavMesh", "Animations"],
-      "3D & Graphics": ["Three.js", "Blender", "GLTF", "FBX"],
-      "Tools": ["Git", "VSCode", "Photoshop"]
     }
-  }
   },
   "statue_frog":{
     title: "Contact",
-    content: "contact me",
+    content:{
+      resume: "./resume.pdf", // path to your resume file
+      github: "https://github.com/sykthi",
+      linkedin: "https://linkedin.com/in/sakthi-nivas"
+    }
   },
 };
 
@@ -126,10 +130,124 @@ function showModal(id)
 
         modalProjectDescription.appendChild(clone);
       });
-
-
       modalVisitProjectButton.classList.add("hidden"); // hide default button
-    } else {
+    }
+
+    else if (id === "fighting_post") {
+      const { education, skills } = content.content;
+
+      // Skills Section First
+      const skillTitle = document.createElement("h3");
+      skillTitle.textContent = "🛠️ Skills";
+      modalProjectDescription.appendChild(skillTitle);
+
+      Object.entries(skills).forEach(([category, items]) => {
+        const skillGroup = document.createElement("div");
+        skillGroup.className = "skill-group";
+
+        const label = document.createElement("strong");
+        label.textContent = category;
+        skillGroup.appendChild(label);
+
+        const badges = document.createElement("div");
+        badges.className = "skill-badges";
+
+        items.forEach((skill) => {
+          const badge = document.createElement("span");
+          badge.className = "skill-badge";
+          badge.textContent = skill;
+          badges.appendChild(badge);
+        });
+        skillGroup.appendChild(badges);
+        modalProjectDescription.appendChild(skillGroup);
+      });
+
+      // Education Section
+      const eduTitle = document.createElement("h3");
+      eduTitle.textContent = "🎓 Education";
+      // eduTitle.style.marginTop = "20px";
+      modalProjectDescription.appendChild(eduTitle);
+
+      education.forEach((item) => {
+        const eduItem = document.createElement("div");
+        eduItem.className = "edu-item";
+        eduItem.innerHTML = `
+          <strong>${item.degree}</strong><br/>
+          <span>${item.institute}</span> – <em>${item.year}</em>
+        `;
+        modalProjectDescription.appendChild(eduItem);
+      });
+
+      modalVisitProjectButton.classList.add("hidden");
+    }
+    else if (id === "statue_frog") {
+      const form = document.createElement("form");
+      form.className = "contact-form";
+
+      form.innerHTML = `
+        <label>Your Name</label>
+        <input type="text" name="from_name" required>
+
+        <label>Your Email</label>
+        <input type="email" name="from_email" required>
+
+        <label>Message</label>
+        <textarea name="message" rows="5" required></textarea>
+
+        <button type="submit" class="send-button">Send</button>
+        <p class="form-status"></p>
+      `;
+
+      modalProjectDescription.appendChild(form);
+      modalVisitProjectButton.classList.add("hidden");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const status = form.querySelector(".form-status");
+        status.textContent = "Sending...";
+
+        emailjs.sendForm('service_ok062yi', 'template_t8klmzj', form)
+          .then(() => {
+            status.textContent = "Message sent successfully! ✅";
+            form.reset();
+          }, (error) => {
+            status.textContent = "Failed to send. ❌";
+            console.error(error);
+          });
+      });
+        // Resume + Socials
+      const buttonsWrapper = document.createElement("div");
+      buttonsWrapper.className = "contact-buttons";
+
+      // Resume download
+      const resumeBtn = document.createElement("a");
+      resumeBtn.href = content.content.resume;
+      resumeBtn.download = "Sakthi_Resume.pdf";
+      resumeBtn.className = "resume-button";
+      resumeBtn.textContent = "Download Resume";
+      buttonsWrapper.appendChild(resumeBtn);
+
+      // GitHub
+      const gitBtn = document.createElement("a");
+      gitBtn.href = content.content.github;
+      gitBtn.target = "_blank";
+      gitBtn.className = "social-button";
+      gitBtn.textContent = "GitHub";
+      buttonsWrapper.appendChild(gitBtn);
+
+      // LinkedIn
+      const linkedBtn = document.createElement("a");
+      linkedBtn.href = content.content.linkedin;
+      linkedBtn.target = "_blank";
+      linkedBtn.className = "social-button";
+      linkedBtn.textContent = "LinkedIn";
+      buttonsWrapper.appendChild(linkedBtn);
+
+      modalProjectDescription.appendChild(buttonsWrapper);
+
+    }
+
+    else {
       modalProjectDescription.textContent = content.content;
 
       if (content.link) {
@@ -220,7 +338,7 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
   scene.add(fbx);
 
   // ✅ Set initial collider position manually above ground
-  const startPosition = new THREE.Vector3(10, 1, 0); // same as original
+  const startPosition = new THREE.Vector3(0, 1, -17.5); // same as original
   playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
 
@@ -300,7 +418,7 @@ camera.position.y = 10;
 camera.position.z = -10;
 
 const cameraoffset = new THREE.Vector3( 10, 10,-10);
-camera.zoom = 10;
+camera.zoom = 15;
 camera.updateProjectionMatrix();
 
 // Post-processing setup
@@ -497,7 +615,7 @@ window.addEventListener("keyup", (event) => {
 
 // Reset player position if they fall below a certain threshold
 const FALL_THRESHOLD = -20;
-const START_POSITION = new THREE.Vector3(0, 5, -17.5); // same as original
+const START_POSITION = new THREE.Vector3(0, 1, -17.5); // same as original
 function resetPlayerPosition() {
   // Reset collider position
   playerCollider.start.copy(START_POSITION).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));

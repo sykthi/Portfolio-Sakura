@@ -62,7 +62,7 @@
 /* Modal Project */
 .modal-project-description {
   max-height: 400px;
-  margin: 12px 0;
+  margin-top: 6px;
   overflow-y: auto;
   padding-right: 8px;
   color: #5e5550;
@@ -88,7 +88,42 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Skills */
+.skill-group {
+  margin-top: 10px;
+  margin-bottom: 0px;
+}
 
+.skill-badges {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-badge {
+  background-color: #222;
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #555;
+  transition: background-color 0.3s;
+}
+
+.skill-badge:hover {
+  background-color: #444;
+}
+
+.modal-project-description h3 {
+  margin-top: 12px;
+  /* margin-bottom: 10px; */
+}
+
+.edu-item {
+  line-height: 1.4;
+  color: #5e5550;
+}
 .project-card {
   background-color: rgba(0, 0, 0, 0.1);
   padding: 12px;
@@ -99,12 +134,12 @@
   align-items: center;
 }
 .left {
-  width: 60%;
+  width: 50%;
   padding: 10px;
   line-height: 20px;
 }
 .right {
-  width: 40%;
+  width: 50%;
 }
 
 .project-card h3 {
@@ -156,6 +191,73 @@
     border: none;
     outline: none;
 }
+
+/* contact */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #5e5550;
+}
+
+.contact-form label {
+  font-weight: bold;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 8px;
+  border: 1px solid #666;
+  background: #d3d3d3;
+  /* color: #fff; */
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.send-button {
+  background-color: #619741;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 100;
+  font-size: medium;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.send-button:hover {
+  background-color: #386641;
+}
+
+.form-status {
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.contact-buttons {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resume-button,
+.social-button {
+  background-color: #619741;
+  color: #fff;
+  padding: 8px 14px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 0.3s ease;
+  font-weight: 100;
+}
+
+.resume-button:hover,
+.social-button:hover {
+  background-color: #386641;
+}
+
 
 /* MobileControls */
 #mobile-controls {
