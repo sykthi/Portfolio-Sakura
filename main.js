@@ -23,7 +23,6 @@ const CAPSULE_HEIGHT = 1;
 const JUMP_HEIGHT = 4;
 let MOVE_SPEED = 2;
 
-const loadingScreen = document.getElementById("loading-screen");
 
 let Character = null;
 let mixer = null;
@@ -314,22 +313,12 @@ loader.load( '3D/Scene.glb', function ( glb ) {
   scene.add( glb.scene );
   outlinePass.selectedObjects = clickableObjects;
   isSceneReady = true;
-
-  checkLoadingComplete(); // ✅ Add this
+  
 }, undefined, function ( error ) {
   
   console.error( error );
   
 } );
-
-let assetsLoaded = 0;
-function checkLoadingComplete() {
-  assetsLoaded++;
-  if (assetsLoaded === 4) { // 1 GLB + 1 FBX + 3 Animations = 5 → you can tweak this
-    loadingScreen.style.display = "none";
-    isSceneReady = true;
-  }
-}
 
 //loading character
 const fbxLoader = new FBXLoader();
@@ -347,11 +336,11 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
 
   Character = fbx;
   scene.add(fbx);
+
   // ✅ Set initial collider position manually above ground
   const startPosition = new THREE.Vector3(0, 1, -17.5); // same as original
   playerCollider.start.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(startPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
-  checkLoadingComplete();
 
   mixer = new THREE.AnimationMixer(Character);
 
@@ -361,7 +350,6 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
     runAction.setLoop(THREE.LoopRepeat);
     runAction.enabled = true;
     animations["walk"] = runAction;
-    checkLoadingComplete();
   });
 
   fbxLoader.load('Anim/Idle.fbx', function (anim) {
@@ -370,7 +358,6 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
     runAction.setLoop(THREE.LoopRepeat);
     runAction.enabled = true;
     animations["idle"] = runAction;
-    checkLoadingComplete();
   });
   fbxLoader.load('Anim/Run.fbx', function (anim) {
     const runAction = mixer.clipAction(anim.animations[0]);
@@ -378,7 +365,6 @@ fbxLoader.load('3D/Ronin.fbx', function (fbx) {
     runAction.setLoop(THREE.LoopRepeat);
     runAction.enabled = true;
     animations["run"] = runAction;
-    checkLoadingComplete();
   });
 });
 
@@ -529,19 +515,14 @@ function onResize()
   camera.updateProjectionMatrix();
   renderer.setSize(sizes.width, sizes.height);
   composer.setSize(sizes.width, sizes.height);
-  effectFXAA.uniforms['resolution'].value.set(1 / sizes.width, 1 / sizes.height);
+effectFXAA.uniforms['resolution'].value.set(1 / sizes.width, 1 / sizes.height);
+
 }
 
-function onclick(event)
+function onclick()
 {
-  // if (!modal.classList.contains("hidden")) {
-  //   const clickedInsideModal = event.target.closest(".modal, .modal-wrapper");
-  //   if (clickedInsideModal) return;
-  // }
-
-
-  // If modal is not visible and a 3D object was intersected → open it
-  if (intersectObject !== "") {
+  // console.log(intersectObject);
+  if(intersectObject !=="") {
     showModal(intersectObject);
   }
 }
